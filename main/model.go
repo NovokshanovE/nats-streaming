@@ -58,12 +58,12 @@ type Order struct {
 }
 
 type Cache struct {
-	Orders map[int]Order
+	Orders map[string]Order
 }
 
 // var body []byte
 var cache = Cache{
-	Orders: make(map[int]Order),
+	Orders: make(map[string]Order),
 }
 
 func (c Cache) from_json(json_str string) {
@@ -75,12 +75,12 @@ func (c Cache) from_json(json_str string) {
 		panic(err)
 	} // Десериализация JSON в структуру
 
-	c.Orders[len(c.Orders)] = order
+	c.Orders[order.Order_uid] = order
 	// log.Print(cache.Orders[len(cache.Orders)-1])
 
 }
 
-func (c Cache) from_db(id int, json_str string) {
+func (c Cache) from_db(id string, json_str string) {
 	order := Order{}
 
 	if err := json.Unmarshal([]byte(json_str), &order); err != nil {
@@ -90,16 +90,28 @@ func (c Cache) from_db(id int, json_str string) {
 	} // Десериализация JSON в структуру
 
 	c.Orders[id] = order
-	log.Print(cache.Orders[len(cache.Orders)-1])
+	log.Print(cache.Orders["b563feb7b2b84b6test"])
 }
 
-func (c Cache) by_id(id int) Order {
+func (c Cache) by_id(id string) Order {
+	// if c.Orders[id] != nil {
 
+	// }
 	return c.Orders[id]
 }
 
-func to_json() string {
-	return ""
+func (c Cache) to_json(id string) string {
+	bytes, err := json.MarshalIndent(c.by_id(id), "", "\t")
+	if err != nil {
+		// log.Panic()
+		// fmt.Errorf()
+		panic(err)
+	} // Десериализация JSON в структуру
+	// order := ""
+	// for i := 0; i < len(order_bytes); i++ {
+	// 	order += order_bytes[i]
+	// }
+	return string(bytes)
 }
 
 func start_program() {
@@ -120,7 +132,7 @@ func load_from_db() {
 	defer rows.Close()
 
 	for rows.Next() {
-		var id int
+		var id string
 		var data string
 
 		if err := rows.Scan(&id, &data); err != nil {

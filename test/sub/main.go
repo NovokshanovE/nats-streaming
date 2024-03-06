@@ -44,25 +44,25 @@ func run() error {
 		time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
 		log.Print(msg)
 		// Mark it is done.
-		wg.Done()
+		// wg.Done()
 	})
 	if err != nil {
 		return err
 	}
 	defer logCloser(sub)
 
-	// Publish up to 10.
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
-		// var d byte[] =
-		buf := []byte("exexeeexeywiu3y8yi3x")
-		err := conn.Publish("counter", buf)
-		if err != nil {
-			return err
-		}
-	}
+	// // Publish up to 10.
+	// for i := 0; i < 10; i++ {
+	// 	wg.Add(1)
+	// 	// var d byte[] =
+	// 	buf := []byte("exexeeexeywiu3y8yi3x")
+	// 	err := conn.Publish("counter", buf)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
-	// Wait until all messages have been processed.
+	// // Wait until all messages have been processed.
 	wg.Wait()
 
 	return nil

@@ -38,7 +38,7 @@ func run() error {
 		time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
 		log.Print(msg)
 		// Mark it is done.
-		wg.Done()
+		// wg.Done()
 	})
 	if err != nil {
 		return err
