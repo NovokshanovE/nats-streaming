@@ -5,6 +5,12 @@ go 1.22.0
 require github.com/nats-io/go-nats-streaming v0.4.5
 
 require (
+	github.com/golang/protobuf v1.5.4 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
+)
+
+require (
+	github.com/cube2222/Blog v0.0.0-20171226112219-37bb523c69b0
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/lib/pq v1.10.9

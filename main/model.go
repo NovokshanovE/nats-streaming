@@ -2,7 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -72,11 +75,14 @@ func (c Cache) from_json(json_str string) {
 	if err := json.Unmarshal([]byte(json_str), &order); err != nil {
 		// log.Panic()
 		// fmt.Errorf()
-		panic(err)
+		fmt.Errorf("Error: %e", err)
+		return
 	} // Десериализация JSON в структуру
 
 	c.Orders[order.Order_uid] = order
+
 	// log.Print(cache.Orders[len(cache.Orders)-1])
+	saveInDB(order.Order_uid, json_str)
 
 }
 
@@ -114,10 +120,80 @@ func (c Cache) to_json(id string) string {
 	return string(bytes)
 }
 
-func start_program() {
-
+func (o Order) to_json() string {
+	bytes, err := json.Marshal(o)
+	if err != nil {
+		// log.Panic()
+		// fmt.Errorf()
+		panic(err)
+	} // Десериализация JSON в структуру
+	// order := ""
+	// for i := 0; i < len(order_bytes); i++ {
+	// 	order += order_bytes[i]
+	// }
+	return string(bytes)
 }
 
+func (o Order) Value() (driver.Value, error) {
+	return json.Marshal(o)
+	// if err != nil {
+	// 	// log.Panic()
+	// 	// fmt.Errorf()
+	// 	panic(err)
+	// } // Десериализация JSON в структуру
+	// return bytes
+}
+
+// func start_program() {
+
+// }
+
+func (o *Order) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("type assertion to []byte failed")
+	}
+
+	return json.Unmarshal(b, &o)
+}
+
+func saveInDB(id string, json_str string) {
+
+	db, err := sql.Open("postgres", "user=postgres password=2307 dbname=nats_db sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	order := cache.Orders[id]
+	fmt.Print("\n")
+	fmt.Print(order.to_json())
+	sqlStatement := `
+	INSERT INTO message VALUES 
+	($1, 
+	$2)`
+	fmt.Print(cache.Orders[id])
+	_, err = db.Exec(sqlStatement, id, order)
+	if err != nil {
+		panic(err)
+	}
+
+	// for rows.Next() {
+	// 	var id string
+	// 	var data string
+
+	// 	if err := rows.Scan(&id, &data); err != nil {
+	// 		log.Fatal(err)
+	// 	}
+
+	// 	// fmt.Print(reflect.TypeOf(data))
+	// 	// fmt.Print(data)
+	// 	// cache.from_db(id, data)
+
+	// 	// cache[id] = data
+	// }
+	// log.Print(cache)
+
+}
 func load_from_db() {
 	db, err := sql.Open("postgres", "user=postgres password=2307 dbname=nats_db sslmode=disable")
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"net/http"
 	"sync"
 	"time"
 
@@ -18,20 +19,23 @@ func logCloser(c io.Closer) {
 }
 
 func main() {
-	if err := run(); err != nil {
-		log.Fatal(err)
-	}
+	// if err := run(); err != nil {
+	// 	log.Fatal(err)
+	// }
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", run)
 }
 
-func run() error {
+func run(w http.ResponseWriter, r *http.Request) {
 	conn, err := stan.Connect(
 		"test-cluster",
 		"test-client",
 		stan.NatsURL("nats://localhost:4222"),
 	)
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
+
 	defer logCloser(conn)
 
 	wg := &sync.WaitGroup{}
@@ -40,14 +44,15 @@ func run() error {
 		// Print the value and whether it was redelivered.
 		fmt.Printf("seq = %d [redelivered = %v]\n", msg.Sequence, msg.Redelivered)
 
-		// Add jitter..
-		time.Sleep(time.Duration(rand.Intn(100)) * time.Millisecond)
+		// Add jitter.
+		time.Sleep(time.Duration(rand.Intn(10000)) * time.Millisecond)
 		log.Print(msg)
 		// Mark it is done.
-		// wg.Done()
+		wg.Done()
 	})
+
 	if err != nil {
-		return err
+		fmt.Errorf(err.Error())
 	}
 	defer logCloser(sub)
 
@@ -55,15 +60,15 @@ func run() error {
 	// for i := 0; i < 10; i++ {
 	// 	wg.Add(1)
 	// 	// var d byte[] =
-	// 	buf := []byte("exexeeexeywiu3y8yi3x")
+	// 	buf := []byte(string(i))
 	// 	err := conn.Publish("counter", buf)
-	// 	if err != nil {
-	// 		return err
-	// 	}
+	// 	// if err != nil {
+	// 	// 	return err
+	// 	// }
 	// }
 
 	// // Wait until all messages have been processed.
 	wg.Wait()
-
-	return nil
+	select {}
+	// return nil
 }
