@@ -19,7 +19,7 @@ func CLReader(done chan bool) {
 	// fmt.Fscan(os.Stdin, &read)
 	for read != "exit" {
 
-		fmt.Print("Input \"exit\" to exit CLI or ID if you want to see order info\nInput:")
+		fmt.Print("Commands:\nexit - shut down\nlist - list of IDs\ninput ID if you want to see order info\nInput:")
 		fmt.Fscan(os.Stdin, &read)
 		if read == "exit" {
 
@@ -31,10 +31,14 @@ func CLReader(done chan bool) {
 			// if val == nil
 
 			// fmt.Print(val)
+		} else if read == "list" {
+			for key := range cache.Orders {
+				fmt.Printf("ID: %s\n", key)
+			}
 		} else {
-			err := fmt.Errorf("Error: try to get order by ID = %s", read)
+			err := fmt.Errorf("ERROR: try to get order by ID = %s", read)
 			fmt.Errorf("\n%e\n", err)
-			fmt.Printf("Error: try to get order by ID = %s(there is no such order)\n", read)
+			fmt.Printf("ERROR: try to get order by ID = %s(there is no such order)\n", read)
 		}
 
 	}
