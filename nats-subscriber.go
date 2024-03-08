@@ -129,11 +129,15 @@ func runSubscriber(done chan bool) {
 		startOpt = stan.StartAtTimeDelta(ago)
 	}
 
-	subj, i := args[0], 0
+	subj := args[0]
 	mcb := func(msg *stan.Msg) {
-		i++
-		printMsg(msg, i)
-		cache.from_json(string(msg.Data))
+		// i++
+		// printMsg(msg, i)
+		err := cache.from_json(string(msg.Data))
+		if err != nil {
+			// sc.Close()
+			log.Fatal(err)
+		}
 	}
 
 	sub, err := sc.QueueSubscribe(subj, qgroup, mcb, startOpt, stan.DurableName(durable))

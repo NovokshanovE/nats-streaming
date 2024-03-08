@@ -5,7 +5,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -48,9 +47,6 @@ type item struct {
 	Status       int    `json:"status"`
 }
 
-/*
-TODO: Необходимо допилить структуры
-*/
 type Order struct {
 	Order_uid    string   `json:"order_uid"`
 	Track_number string   `json:"track_number"`
@@ -69,20 +65,30 @@ var cache = Cache{
 	Orders: make(map[string]Order),
 }
 
-func (c Cache) from_json(json_str string) {
+func (c Cache) from_json(json_str string) error {
 	order := Order{}
 
 	if err := json.Unmarshal([]byte(json_str), &order); err != nil {
 		// log.Panic()
 		// fmt.Errorf()
-		fmt.Errorf("Error: %e", err)
-		return
+		// fmt.Errorf("Error: %e", err)
+		return err
 	} // Десериализация JSON в структуру
+	if _, ok := cache.Orders[order.Order_uid]; ok {
+		return nil
 
+		// if val == nil
+
+		// fmt.Print(val)
+	}
 	c.Orders[order.Order_uid] = order
 
 	// log.Print(cache.Orders[len(cache.Orders)-1])
-	saveInDB(order.Order_uid, json_str)
+	err1 := saveInDB(order.Order_uid, json_str)
+	if err1 != nil {
+		return err1
+	}
+	return nil
 
 }
 
@@ -96,7 +102,7 @@ func (c Cache) from_db(id string, json_str string) {
 	} // Десериализация JSON в структуру
 
 	c.Orders[id] = order
-	log.Print(cache.Orders["b563feb7b2b84b6test"])
+	// log.Print(cache.Orders["b563feb7b2b84b6test"])
 }
 
 func (c Cache) by_id(id string) Order {
@@ -157,7 +163,7 @@ func (o *Order) Scan(value interface{}) error {
 	return json.Unmarshal(b, &o)
 }
 
-func saveInDB(id string, json_str string) {
+func saveInDB(id string, json_str string) error {
 
 	db, err := sql.Open("postgres", "user=tm_admin password=admin dbname=nats_db sslmode=disable")
 	if err != nil {
@@ -165,33 +171,18 @@ func saveInDB(id string, json_str string) {
 	}
 	defer db.Close()
 	order := cache.Orders[id]
-	fmt.Print("\n")
-	fmt.Print(order.to_json())
+	// fmt.Print("\n")
+	// fmt.Print(order.to_json())
 	sqlStatement := `
 	INSERT INTO message VALUES 
 	($1, 
 	$2)`
-	fmt.Print(cache.Orders[id])
+	// fmt.Print(cache.Orders[id])
 	_, err = db.Exec(sqlStatement, id, order)
 	if err != nil {
-		panic(err)
+		return err
 	}
-
-	// for rows.Next() {
-	// 	var id string
-	// 	var data string
-
-	// 	if err := rows.Scan(&id, &data); err != nil {
-	// 		log.Fatal(err)
-	// 	}
-
-	// 	// fmt.Print(reflect.TypeOf(data))
-	// 	// fmt.Print(data)
-	// 	// cache.from_db(id, data)
-
-	// 	// cache[id] = data
-	// }
-	// log.Print(cache)
+	return nil
 
 }
 func load_from_db() {
@@ -221,27 +212,5 @@ func load_from_db() {
 
 		// cache[id] = data
 	}
-	log.Print(cache)
+	// log.Print(cache)
 }
-
-// req := Order{
-// 	Order_uid:    "wcubje",
-// 	Track_number: "hjejce",
-// 	Entry:        "checjw",
-// 	Delivery: []delivery{{
-// 		Delivery_id: "7867697cdcd",
-// 	}},
-// }
-// if err := json.Decoder(r.Body).Decode(&req); err != nil {
-// 	// обработка ошибки
-// }
-// encoder := json.NewEncoder(io.Discard) // Создание энкодера, вывод в /dev/null
-// err = encoder.Encode(req)
-// fmt.Print(err)
-// _, err = db.Exec("select * from message")
-// body, err = json.Marshal(req)
-// var json_str string = ""
-// for i := 0; i < len(body); i++ {
-// 	json_str += string(body[i])
-// 	// fmt.Print(string(body[i]))
-// }

@@ -13,12 +13,15 @@ func showOrder(w http.ResponseWriter, r *http.Request) {
 	// 	http.NotFound(w, r)
 	// 	return
 	// }
-	if val, ok := cache.Orders[id]; ok {
+	if _, ok := cache.Orders[id]; ok {
 		fmt.Fprint(w, cache.to_json(id))
-		fmt.Print(val)
+
+		// if val == nil
+
+		// fmt.Print(val)
 	} else {
 		err := fmt.Errorf("Error: try to get order by ID = %s", id)
-		log.Panic(err)
+		fmt.Errorf("\n%e\n", err)
 	}
 
 }

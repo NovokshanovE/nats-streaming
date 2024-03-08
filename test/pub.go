@@ -110,14 +110,14 @@ func main() {
 		ch <- true
 	}
 	data := []byte(`{
-		"order_uid": "b563feb7b2b84b6test",
+		"order_uid": "id_345",
 		"track_number": "WBILMTESTTRACK",
 		"entry": "WBIL",
 		"delivery": {
-			"name": "Test Testov",
-			"phone": "+9720000000",
-			"zip": "2639809",
-			"city": "Kiryat Mozkin",
+			"name": "Evgeny1234",
+			"phone": "",
+			"zip": "",
+			"city": "",
 			"address": "Ploshad Mira 15",
 			"region": "Kraiot",
 			"email": "test@gmail.com"
