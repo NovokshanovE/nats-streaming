@@ -92,7 +92,7 @@ func main() {
 	}
 	defer sc.Close()
 
-	subj, msg := args[0], []byte(args[1])
+	subj := args[0]
 
 	ch := make(chan bool)
 	var glock sync.Mutex
@@ -155,10 +155,10 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error during publish: %v\n", err)
 		}
-		log.Printf("Published [%s] : '%s'\n", subj, msg)
+		log.Printf("Published [%s] : '%s'\n", subj, data)
 	} else {
 		glock.Lock()
-		guid, err = sc.PublishAsync(subj, msg, acb)
+		guid, err = sc.PublishAsync(subj, data, acb)
 		if err != nil {
 			log.Fatalf("Error during async publish: %v\n", err)
 		}
@@ -166,7 +166,7 @@ func main() {
 		if guid == "" {
 			log.Fatal("Expected non-empty guid to be returned.")
 		}
-		log.Printf("Published [%s] : '%s' [guid: %s]\n", subj, msg, guid)
+		log.Printf("Published [%s] : '%s' [guid: %s]\n", subj, data, guid)
 
 		select {
 		case <-ch:
