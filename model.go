@@ -159,7 +159,7 @@ func (o *Order) Scan(value interface{}) error {
 
 func saveInDB(id string, json_str string) {
 
-	db, err := sql.Open("postgres", "user=postgres password=2307 dbname=nats_db sslmode=disable")
+	db, err := sql.Open("postgres", "user=tm_admin password=admin dbname=nats_db sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -195,7 +195,7 @@ func saveInDB(id string, json_str string) {
 
 }
 func load_from_db() {
-	db, err := sql.Open("postgres", "user=postgres password=2307 dbname=nats_db sslmode=disable")
+	db, err := sql.Open("postgres", "user=tm_admin password=admin dbname=nats_db sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
