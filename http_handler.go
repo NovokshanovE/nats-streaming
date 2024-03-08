@@ -22,6 +22,7 @@ func showOrder(w http.ResponseWriter, r *http.Request) {
 	} else {
 		err := fmt.Errorf("Error: try to get order by ID = %s", id)
 		fmt.Errorf("\n%e\n", err)
+		fmt.Fprintf(w, "Error: try to get order by ID = %s(there is no such order)", id)
 	}
 
 }

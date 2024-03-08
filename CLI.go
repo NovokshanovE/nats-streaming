@@ -25,8 +25,18 @@ func CLReader(done chan bool) {
 
 			continue
 		}
+		if _, ok := cache.Orders[read]; ok {
+			fmt.Printf("%s\n", cache.to_json(read))
 
-		fmt.Printf("%s\n", cache.to_json(read))
+			// if val == nil
+
+			// fmt.Print(val)
+		} else {
+			err := fmt.Errorf("Error: try to get order by ID = %s", read)
+			fmt.Errorf("\n%e\n", err)
+			fmt.Printf("Error: try to get order by ID = %s(there is no such order)\n", read)
+		}
+
 	}
 
 }
